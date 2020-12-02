@@ -573,7 +573,20 @@ def _getPhotoImageReference(w, h):
     _imageRefs.append(ans)
     
     return ans
-    
+
+# return a tuple containing the r,g,b of the pixel at x,y in the image
+def getPixel(pic, x, y):
+    global _canvas
+    _makeSureWindowCreated()    
+    im = _getPhotoImage(pic)
+    return im.get(x, y)
+
+# return a tuple containing the width and height in pixels of the image
+def getPictureSize(pic):
+    global _canvas
+    _makeSureWindowCreated()    
+    im = _getPhotoImage(pic)
+    return (im.width(), im.height())    
 
 # The mag parameter only applies to images specified via a 2d array
 def picture(pic, x=0, y=0, mag=1):
@@ -796,6 +809,22 @@ def _regressionTest():
     """
     Perform regression testing.
     """
+    
+    # 
+    setCanvasSize(512,512)
+    im = _getPhotoImage("mandril.gif")
+    col = im.get(20, 20)
+    print("Color is:", col)
+    print("Size is:", im.width(), im.height())
+    
+    dimensions = getPictureSize("mandril.gif")
+    numPixels = 0
+    for row in range(dimensions[1]):
+        for col in range(dimensions[0]):
+            p = getPixel("mandril.gif", col, row)
+            numPixels += 1
+    print("Loaded", numPixels, "pixels")
+            
 
     clear()
     setBackground(YELLOW)

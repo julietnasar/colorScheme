@@ -1,6 +1,8 @@
 from PIL import Image, ImageDraw
+import pandas as pd
 import random
 import Draw
+import math
 
 
 def pixDist(r1,g1,b1,r2,g2,b2):
@@ -15,46 +17,13 @@ def getClustRow(clusters,centroid):
         if(centroid in clusters[row]):
             return row
 
-def colorSchemer(path):
+# function modifies centroids and clusters
+def clusterize(allPix,centroids,clusters):
     
-    img = Image.open(path)
-    pix = img.load() # loads the pixel data, returns a PixelAccess Class
-    width, height = img.size
-    
-    allPix = []
-    for w in range(width):
-        for h in range(height):
-            cpix = pix[w,h]
-            allPix.append(cpix)
-
-    
-    
-    # selecting 8 unique random centroids (in form of indeces) to begin
-    centroids = random.sample(allPix,8)
-    
-    print("old centroids:" + str(centroids))
-    
-    #clusters list
-    clusters = [[c] for c in centroids]
-    
-    #remove centroids since they already clustered
-    allPix = [i for i in allPix if i not in centroids]
-    
-    # we will start with the max distance and max pix values
-    #minDist = pixDist(255,255,255,0,0,0)
-    
-    
-    # print("original cluster len",[len(c) for c in clusters])
-    
-        
-        # loop through all the pixels
+    # loop through all the pixels
     for p in allPix:
         # we will start with the max distance and max pix values
         minDist = pixDist(255,255,255,0,0,0)
-            
-        # rgb values of the current pixel
-            
-        # appending the distance btwn current centroid and current pixel
             
         for c in range(len(centroids)):
             r1,g1,b1 = centroids[c]
@@ -79,17 +48,195 @@ def colorSchemer(path):
         
         # taking avg of old centroid and new cluster addition to
         # get new centroid
-        centroids[index] = (r1+r2)//2,(g1+g2)//2,(b1+b2)//2
-                   
+        centroids[index] = (r1+r2)//2,(g1+g2)//2,(b1+b2)//2   
+        
+        
+# returns a list of the closest color name to each centroid in same order
+def getColorName(centroids):
+    
+    # dictionary with centroid as key and a tuple of the closest color name as 
+    # the data
+    centroidNames = []
+    
+    
+    # creating an empty 2d list
+    data = {}
+    
+    # load in the data
+    fin = open("colorNames.csv")
+    
+    # reading the first row of headers
+    fin.readline()
+    
+    for line in fin:
+        
+        # getting a line from the file
+        dat = line.strip()
+        dat = line.split(",")
+        
+        # the color name is the 0th element of the line
+        name = dat[0]
+        
+        # rgb values are dat[1],dat[2],and dat[3] respectively
+        rgb = (dat[1],dat[2],dat[3])
+        
+        # add to the data dictionary
+        data[name] = rgb
+    
+    fin.close()
+        
+    for c in centroids:
+        
+        # set minDist to the maximum dist possible
+        minDist = pixDist(0,0,0,255,255,255)
+        # closest colorName
+        closestName = ""
+        
+        # looping through the color name data
+        for k in data:
+            
+            
+            r,g,b = c # centroid rgb vals
+            r1,g1,b1 = data[k] # corresponding rgb vals to the key
+            
+            
+            dist = pixDist(r,g,b,int(r1),int(g1),int(b1))
+            
+            # if the distance is less than the minDist 
+            # the values at that color become the values of the current pix
+            if(dist < minDist):
+                closestName = k
+                minDist = dist
+        
+        centroidNames+=[closestName]
+        
+    return centroidNames
+
+# returns list of hex value of a centroid
+# note hex is base 16
+def getHex(centroids):
+    
+    hexVals = []
+    
+    decToHex = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:"A",11:"B",
+                12:"C",13:"D",14:"E",15:"F"}
+    
+    
+    
+    for c in centroids:
+        
+        # hex values start with a #
+        hexStr = "#"
+        
+        for i in range(len(c)):
+            
+            
+            # the first hex digit is the hex equivalent of the int division by 16
+            
+            hexDig1 = decToHex[c[i]//16]
+            
+            #print("dig1",hexDig1)
+            
+            # the second hex digit is the hex equivalent of the remainder from
+            # the first hex dig times 16
+            hexDig2 = decToHex[int(abs(c[i]//16 - c[i]/16)*16)]
+            
+            # add the first and second dig to the hexstring
+            hexStr+=(str(hexDig1)+str(hexDig2))
+    
+        
+        hexVals+=[hexStr]
+        
+    return hexVals  
+
+def drawPalette(path, centroids, width, height, centroidNames, centroidHex):
+    
+    Draw.picture(path,0,0)
+    
+    # to space evenly:
+    w = 512//len(centroids)
+    h = height
+
+    
+    for i in range(len(centroids)):
+
+        # set color to values in current centroid
+        Draw.setColor(Draw.color(centroids[i][0],centroids[i][1],centroids[i][2]))
+        
+        rectX = i*w
+        rectY = h
+        rectWidth = w
+        rectHeight = 70 # specified when set canvas size
+        
+        Draw.filledRect(rectX,rectY,rectWidth,rectHeight)    
+        
+        
+        
+        Draw.setFontSize(10)
+        Draw.setColor(Draw.BLACK)
+        
+        # drawing hex and color names
+        Draw.string(centroidNames[i],rectX,rectY)
+        Draw.string(centroidHex[i],rectX,rectY+20)
+
+
+
+
+def colorSchemer(path):
+    
+    # we are using PIL to do this since once we use a Draw
+    # function we cannot re-set the canvas size
+    width,height = Image.open(path).size
+    
+    # to make sure the 8 palettes we draw can be evenly arranged
+    if(width%8 !=0):
+        width = width - width%8
+    
+    #setting the canvas size to:
+    Draw.setCanvasSize(width,height+70)
+    
+    
+    width,height = Draw.getPictureSize(path)
+    
+    allPix = []
+    for w in range(width):
+        for h in range(height):
+            cpix = Draw.getPixel(path,w,h)
+            allPix.append(cpix)
+    
+    # selecting 8 unique random centroids (in form of indeces) to begin
+    centroids = random.sample(allPix,8)
+    
+    print("old centroids:" + str(centroids))
+    
+    #clusters list
+    clusters = [[c] for c in centroids]
+    
+    #remove centroids since they already clustered
+    allPix = [i for i in allPix if i not in centroids]
+    
+    # print("original cluster len",[len(c) for c in clusters])
+    
+    # clusterize the pixels by centroid
+    clusterize(allPix,centroids,clusters)
+    
+    # sort the centroids
+    centroids.sort()
             
     print("new centroids:" + str(centroids))
     # print("new cluster len",[len(c) for c in clusters])
     
-    #Draw.picture(path,0,0)
+    # get lists of the hex values and the closest names
+    centroidNames = getColorName(centroids)
+    centroidHex = getHex(centroids)    
     
-    for i in range(len(centroids)):
-        Draw.setColor(Draw.color(centroids[i][0],centroids[i][1],centroids[i][2]))
-        Draw.filledRect(i*50,100,100,100)    
+    drawPalette(path, centroids, width, height, centroidNames, centroidHex)
+    
+    
+    #for i in range(len(centroids)):
+    #Draw.string(
+    
+    #print(centroids,"\n",centroidNames,"\n",centroidHex)
     
     
     
@@ -97,25 +244,23 @@ def colorSchemer(path):
 def main():
     
     #colorSchemer("sunflowerField.jpg")
-    colorSchemer("pinkFlower.JPG")
+    #colorSchemer("pinkFlower.JPG")
+    #colorSchemer("pics/rainbow.gif")
+    colorSchemer("pics/galaxy.gif")
+    #colorSchemer("pics/aaronJudge.gif")
     
+    # load in the data
+    #data = open("colorNames.csv")
+    
+    
+    # reading the first row of headers
+    #print(data.readline())
+        
 
-
-    # Questions:
-    # Q1. pinkFlower doesn't capture essense of pink flower
-    # Q2. will show many similar colors that are prominent (like shades
-        # of grey and black) but that don't make for a pretty palette
-    # Q3. Takes a little over a minute to run - ideas to make more efficient
     
-    # possible solutions:
+    #print(getColorName([(50,100,40),(2,36,200)]))
     
-    # use a diff measurement for clusters:eg density
-           # could group by color bracket and then return avg from each
-           # with > ____ obs
-    # find more than 8 clusters and return only contrasting colors
-    # or colors that aren't too similar
-    
+    #print(getHex([(2,30,40),(2,36,200)]))
     
 
 main()
-
