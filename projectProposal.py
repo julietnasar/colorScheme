@@ -168,8 +168,7 @@ def drawPalette(path, centroids, width, height, centroidNames, centroidHex):
         rectWidth = w
         rectHeight = 70 # specified when set canvas size
         
-        Draw.filledRect(rectX,rectY,rectWidth,rectHeight)    
-        
+        Draw.filledRect(rectX,rectY,rectWidth,rectHeight)           
         
         
         Draw.setFontSize(10)
