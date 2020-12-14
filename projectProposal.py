@@ -4,6 +4,10 @@ import random
 import Draw
 import math
 
+# global variable
+canvasW = 500
+canvasH = 600
+
 
 def pixDist(r1,g1,b1,r2,g2,b2):
     # returns the euclidean distance btwn the 2 rgb values
@@ -149,51 +153,98 @@ def getHex(centroids):
         
     return hexVals  
 
-def drawPalette(path, centroids, width, height, centroidNames, centroidHex):
+def drawPic(path, picW, picH, rectX, rectY, rectW, rectH, centroids):
     
-    Draw.picture(path,0,0)
+    # we want to draw the picture centered in our frame
     
-    # to space evenly:
-    w = 512//len(centroids)
-    h = height
+    # initialize values as if the picture is as big as the rectange or frame
+    picX = rectX
+    picY = rectY
+    
+    # if the pic width is less than the rect width
+    if(picW < rectW):
+        # then add the error//2 to the pic's x coord
+        picX += (rectW - picW)//2
+    # if the pic height is less than the rect height
+    if(picH < rectH):
+        # then add the error//2 to the pic's y coord
+        picY += (rectH - picH)//2
+    
+    
+    # draw the picture
+    Draw.picture(path,picX,picY)
 
+def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
+    
+    colorsStartX = rectX
+    colorsY = rectY + 400
+    colorsH = 60
+    colorsW = rectW//len(centroids)
+    
+    # drawing a white space for the text
+    
+    Draw.setColor(Draw.WHITE)
+    Draw.filledRect(rectX,colorsY-40,rectW,40)    
+    
     
     for i in range(len(centroids)):
-
+    
         # set color to values in current centroid
         Draw.setColor(Draw.color(centroids[i][0],centroids[i][1],centroids[i][2]))
         
-        rectX = i*w
-        rectY = h
-        rectWidth = w
-        rectHeight = 70 # specified when set canvas size
+        colorsX = colorsStartX + i*colorsW
         
-        Draw.filledRect(rectX,rectY,rectWidth,rectHeight)           
+        Draw.filledRect(colorsX,colorsY,colorsW,colorsH)     
         
+        #Draw.line(colorsX,colorsY,colorsX,colorsY+colorsH)
+    
+    
+    
+
+def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
+    
+    # set values for our frame
+    rectX = 50
+    rectY = 80
+    rectW = 400
+    rectH = 460
+    
+    # setting background of frame to color to the darkest color of centroids
+    clen = len(centroids)
+    Draw.setColor(Draw.color(centroids[0][0],centroids[0][1],centroids[0][2]))
+    
+    # draw the frame
+    Draw.filledRect(rectX,rectY,rectW,rectH)    
+    
+    # draw the picture
+    drawPic(path,picW, picH, rectX, rectY, rectW, rectH-50, centroids)
+    
+    # to cover the side where the image goes over the frame on the right
+    if(picW > rectW):
         
-        Draw.setFontSize(10)
-        Draw.setColor(Draw.BLACK)
+        coverX = rectX + rectW
+        coverY = rectY
+        coverW = canvasW - rectX - rectW
+        coverH = canvasH
         
-        # drawing hex and color names
-        Draw.string(centroidNames[i],rectX,rectY)
-        Draw.string(centroidHex[i],rectX,rectY+20)
-
-
-
-
+        Draw.setColor(Draw.WHITE)
+        Draw.filledRect(coverX,coverY, canvasW - rectX - rectW, canvasH)
+    
+    
+    drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY)
+    
 def colorSchemer(path):
     
     # we are using PIL to do this since once we use a Draw
     # function we cannot re-set the canvas size
-    width,height = Image.open(path).size
+    #width,height = Image.open(path).size
     
     # to make sure the 8 palettes we draw can be evenly arranged
-    if(width%8 !=0):
-        width = width - width%8
+    #if(width%8 !=0):
+        #width = width - width%8
     
     #setting the canvas size to:
-    Draw.setCanvasSize(width,height+70)
-    
+    Draw.setCanvasSize(canvasW,canvasH)
     
     width,height = Draw.getPictureSize(path)
     
@@ -231,7 +282,7 @@ def colorSchemer(path):
     
     drawPalette(path, centroids, width, height, centroidNames, centroidHex)
     
-    
+
     #for i in range(len(centroids)):
     #Draw.string(
     
@@ -244,8 +295,8 @@ def main():
     
     #colorSchemer("sunflowerField.jpg")
     #colorSchemer("pinkFlower.JPG")
-    #colorSchemer("pics/rainbow.gif")
-    colorSchemer("pics/galaxy.gif")
+    colorSchemer("pics/rainbow.gif")
+    #colorSchemer("pics/galaxy.gif")
     #colorSchemer("pics/aaronJudge.gif")
     
     # load in the data
