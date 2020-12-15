@@ -5,7 +5,7 @@ import Draw
 import math
 
 # global variable
-canvasW = 500
+canvasW = 686
 canvasH = 600
 
 
@@ -176,15 +176,19 @@ def drawPic(path, picW, picH, rectX, rectY, rectW, rectH, centroids):
 
 def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     
+    colorsH = 60 
+    colorsW = rectW//len(centroids)    
     colorsStartX = rectX
-    colorsY = rectY + 400
-    colorsH = 60
-    colorsW = rectW//len(centroids)
+    colorsY = rectY + (rectH-colorsH)
+    
+    
+    wordsH = 45
     
     # drawing a white space for the text
     
     Draw.setColor(Draw.WHITE)
-    Draw.filledRect(rectX,colorsY-40,rectW,40)    
+    Draw.filledRect(rectX,colorsY-wordsH,rectW,wordsH)    
+    
     
     
     for i in range(len(centroids)):
@@ -196,18 +200,51 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
         
         Draw.filledRect(colorsX,colorsY,colorsW,colorsH)     
         
-        #Draw.line(colorsX,colorsY,colorsX,colorsY+colorsH)
+        # draw black line separating white space above colors
+        Draw.setColor(Draw.BLACK)
+        
+        Draw.line(colorsX,colorsY-wordsH,colorsX,colorsY+colorsH)
+        
+        # draw the words text: hex and color names
+        
+        Draw.setColor(Draw.BLACK)
+        
+        # drawing hex and color names
+        # colorsX+1 so word isn't on line/ for aesthetic reasons
+        
+        Draw.setFontSize(8)
+        Draw.string(centroidNames[i],colorsX+1,colorsY-wordsH)         
+        
+        Draw.setFontSize(8)
+        Draw.string(centroidHex[i],colorsX+1,colorsY-2*(wordsH//3))  
+        
+        Draw.setFontSize(8)
+        rgb = "(" + str(centroids[i][0]) + ", " + str(centroids[i][1]) + ", " + str(centroids[i][2]) + ")"
+        Draw.string(rgb,colorsX+1,colorsY-(wordsH//3))  
+        
+                
     
     
     
+    # draw black border
+    Draw.setColor(Draw.BLACK)
+    Draw.rect(rectX,rectY,rectW,rectH)  
+    Draw.rect(rectX,colorsY-wordsH,rectW,wordsH)
+    
+
+def drawLogo(logoX,logoY):
+    print(Draw.availableFonts())
+    
+    
+    Draw.text("Font Test", logoX, logoY)
 
 def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     
     # set values for our frame
-    rectX = 50
-    rectY = 80
-    rectW = 400
+    rectW = 664 # must be multiple of 8 since we have 8 centroids
     rectH = 460
+    rectX = (canvasW - rectW)//2 # since we want equal margins we divide the difference by 2
+    rectY = 80    
     
     # setting background of frame to color to the darkest color of centroids
     clen = len(centroids)
@@ -295,9 +332,12 @@ def main():
     
     #colorSchemer("sunflowerField.jpg")
     #colorSchemer("pinkFlower.JPG")
-    colorSchemer("pics/rainbow.gif")
+    #colorSchemer("pics/rainbow.gif")
     #colorSchemer("pics/galaxy.gif")
     #colorSchemer("pics/aaronJudge.gif")
+    
+    
+    drawLogo(10,20)
     
     # load in the data
     #data = open("colorNames.csv")
