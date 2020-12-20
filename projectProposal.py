@@ -53,7 +53,24 @@ def clusterize(allPix,centroids,clusters):
         # taking avg of old centroid and new cluster addition to
         # get new centroid
         centroids[index] = (r1+r2)//2,(g1+g2)//2,(b1+b2)//2   
+
+# we want to sort the centroids from darkest to lightest but
+# since they are tuples we can't use .sort() in the way we need it
+def sortedDL(centroids):
+    
+    # getting a list of tuples with each centroid's index
+    # and each centroid's Euclidean distance from Black (255,255,255)
+    distFromBlack = [(i,pixDist(centroids[i][0],centroids[i][1],centroids[i][2],255,255,255)) for i in range(len(centroids))]
+    
+    # sorting the list created above by the second element which is the distance
+    # from black (255,255,255)
+    distFromBlack = sorted(distFromBlack, key = lambda x: x[1])
+
+    # return a list of the centroids ordered by their distance from black
+    # the order is stored in the above list distFromBlack
+    return [centroids[i[0]] for i in distFromBlack]
         
+    
         
 # returns a list of the closest color name to each centroid in same order
 def getColorName(centroids):
@@ -173,6 +190,13 @@ def drawPic(path, picW, picH, rectX, rectY, rectW, rectH, centroids):
     
     # draw the picture
     Draw.picture(path,picX,picY)
+    
+    # draw white border around picture
+    
+    Draw.setColor(Draw.WHITE)
+    Draw.rect(picX,picY,picW,picH)
+
+
 
 def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     
@@ -188,7 +212,6 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     
     Draw.setColor(Draw.WHITE)
     Draw.filledRect(rectX,colorsY-wordsH,rectW,wordsH)    
-    
     
     
     for i in range(len(centroids)):
@@ -233,10 +256,16 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     
 
 def drawLogo(logoX,logoY):
-    print(Draw.availableFonts())
+    #print(Draw.availableFonts())
     
+    Draw.setFontFamily("Broadway")
+    Draw.setFontSize(30)
     
-    Draw.text("Font Test", logoX, logoY)
+    Draw.setColor(Draw.BLACK)
+    Draw.filledRect(logoX,logoY,425,50)
+    
+    Draw.setColor(Draw.WHITE)
+    Draw.string("The Color Schemer", logoX+10, logoY)
 
 def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     
@@ -269,6 +298,8 @@ def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     
     
     drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY)
+    
+    drawLogo(rectX, rectY)
     
 def colorSchemer(path):
     
@@ -307,8 +338,8 @@ def colorSchemer(path):
     # clusterize the pixels by centroid
     clusterize(allPix,centroids,clusters)
     
-    # sort the centroids
-    centroids.sort()
+    # sort the centroids from  darkets Black = (0,0,0) to lightest White = (255,255,255)
+    centroids = sortedDL(centroids)
             
     print("new centroids:" + str(centroids))
     # print("new cluster len",[len(c) for c in clusters])
@@ -335,9 +366,14 @@ def main():
     #colorSchemer("pics/rainbow.gif")
     #colorSchemer("pics/galaxy.gif")
     #colorSchemer("pics/aaronJudge.gif")
+    #colorSchemer("pics/pinkClouds.gif")
+    colorSchemer("pics/ocean.gif")
+    #colorSchemer("pics/stickFigures.gif")
     
+    #c = [(1,2,3),(2,2,2),(66,77,88),(100,100,100),(1,1,1)]
+    #sortDL(c)
     
-    drawLogo(10,20)
+    #drawLogo(10,20)
     
     # load in the data
     #data = open("colorNames.csv")
@@ -354,3 +390,7 @@ def main():
     
 
 main()
+
+# Qs
+
+# 1) global variables ok?
