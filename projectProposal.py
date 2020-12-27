@@ -1,3 +1,8 @@
+#"I hereby certify that this program is solely the result of my own work and is in compliance with the Academic Integrity policy of the course syllabus and the academic integrity policy of the CS department.”
+
+
+
+
 from PIL import Image, ImageDraw
 import pandas as pd
 import random
@@ -5,23 +10,23 @@ import Draw
 import math
 
 # global variable
+# the canvas width and height
 canvasW = 686
 canvasH = 600
 
 
+# function purpose: finds the Euclidean distance between two color points by their
+#                   rgb values
+# function returns: the Euclidean distance between the two color points
 def pixDist(r1,g1,b1,r2,g2,b2):
     # returns the euclidean distance btwn the 2 rgb values
     return int((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2)
 
-def getClustRow(clusters,centroid):
-    
-    for row in range(len(clusters)):
-        print(clusters[row])
-        print(centroid)
-        if(centroid in clusters[row]):
-            return row
 
-# function modifies centroids and clusters
+# function purpose: uses a clustering algorithm to create groups of the "closest"
+#                   pixels and modifies the centroid, or average pixel value,
+#                   with each new addition to each cluster
+# function returns: None
 def clusterize(allPix,centroids,clusters):
     
     # loop through all the pixels
@@ -54,8 +59,10 @@ def clusterize(allPix,centroids,clusters):
         # get new centroid
         centroids[index] = (r1+r2)//2,(g1+g2)//2,(b1+b2)//2   
 
-# we want to sort the centroids from darkest to lightest but
-# since they are tuples we can't use .sort() in the way we need it
+
+# function purpose: sorts the clusters from darkest (closest to (255,255,255))
+#                   to lightest (closest to (0,0,0)
+# function returns: a new list with the sorted centroids
 def sortedDL(centroids):
     
     # getting a list of tuples with each centroid's index
@@ -72,7 +79,10 @@ def sortedDL(centroids):
         
     
         
-# returns a list of the closest color name to each centroid in same order
+# function purpose: reads in a color names dataset and matches each rgb value
+#                   in the centroids list to their closest color names
+# function returns: a new list of color names that corresponds to the inputted 
+#                   centroids list
 def getColorName(centroids):
     
     # dictionary with centroid as key and a tuple of the closest color name as 
@@ -133,16 +143,16 @@ def getColorName(centroids):
         
     return centroidNames
 
-# returns list of hex value of a centroid
-# note hex is base 16
+
+# function purpose: finds the hex values of a pixel based off its rgb values
+# function returns: a list of hex values corresponding to the inputted list
+#                   of centroids
 def getHex(centroids):
     
     hexVals = []
     
     decToHex = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:"A",11:"B",
                 12:"C",13:"D",14:"E",15:"F"}
-    
-    
     
     for c in centroids:
         
@@ -170,6 +180,8 @@ def getHex(centroids):
         
     return hexVals  
 
+# function purpose: Draws the picture in a centered and aesthetically pleasing manner
+# function returns: None
 def drawPic(path, picW, picH, rectX, rectY, rectW, rectH, centroids):
     
     # we want to draw the picture centered in our frame
@@ -197,7 +209,8 @@ def drawPic(path, picW, picH, rectX, rectY, rectW, rectH, centroids):
     Draw.rect(picX,picY,picW,picH)
 
 
-
+# function purpose: Draws the color boxes with their names, hex values, and rgb values
+# function returns: None
 def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     
     colorsH = 60 
@@ -244,9 +257,6 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
         Draw.setFontSize(8)
         rgb = "(" + str(centroids[i][0]) + ", " + str(centroids[i][1]) + ", " + str(centroids[i][2]) + ")"
         Draw.string(rgb,colorsX+1,colorsY-(wordsH//3))  
-        
-                
-    
     
     
     # draw black border
@@ -254,7 +264,8 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     Draw.rect(rectX,rectY,rectW,rectH)  
     Draw.rect(rectX,colorsY-wordsH,rectW,wordsH)
     
-
+# function purpose: Draws the color schemer logo
+# function returns: None
 def drawLogo(logoX,logoY):
     #print(Draw.availableFonts())
     
@@ -267,11 +278,13 @@ def drawLogo(logoX,logoY):
     Draw.setColor(Draw.WHITE)
     Draw.string("The Color Schemer", logoX+10, logoY)
 
+# function purpose: Draws the final picture
+# function returns: None
 def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     
     # set values for our frame
     rectW = 664 # must be multiple of 8 since we have 8 centroids
-    rectH = 460
+    rectH = 460 
     rectX = (canvasW - rectW)//2 # since we want equal margins we divide the difference by 2
     rectY = 80    
     
@@ -296,20 +309,16 @@ def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
         Draw.setColor(Draw.WHITE)
         Draw.filledRect(coverX,coverY, canvasW - rectX - rectW, canvasH)
     
-    
+    # draw the colored boxes from the centroids
     drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY)
     
+    # draw the color schemer logo
     drawLogo(rectX, rectY)
-    
+
+# function purpose: Function that puts everything together, finding
+#                   the centroids and then drawing the final picture
+# function returns: None
 def colorSchemer(path):
-    
-    # we are using PIL to do this since once we use a Draw
-    # function we cannot re-set the canvas size
-    #width,height = Image.open(path).size
-    
-    # to make sure the 8 palettes we draw can be evenly arranged
-    #if(width%8 !=0):
-        #width = width - width%8
     
     #setting the canvas size to:
     Draw.setCanvasSize(canvasW,canvasH)
@@ -338,56 +347,30 @@ def colorSchemer(path):
     # clusterize the pixels by centroid
     clusterize(allPix,centroids,clusters)
     
+    print("new centroids:" + str(centroids))
+    
     # sort the centroids from  darkets Black = (0,0,0) to lightest White = (255,255,255)
     centroids = sortedDL(centroids)
             
-    print("new centroids:" + str(centroids))
-    # print("new cluster len",[len(c) for c in clusters])
-    
     # get lists of the hex values and the closest names
     centroidNames = getColorName(centroids)
     centroidHex = getHex(centroids)    
     
+    # draw the final picture
     drawPalette(path, centroids, width, height, centroidNames, centroidHex)
-    
-
-    #for i in range(len(centroids)):
-    #Draw.string(
-    
-    #print(centroids,"\n",centroidNames,"\n",centroidHex)
-    
-    
     
     
 def main():
     
-    #colorSchemer("sunflowerField.jpg")
-    #colorSchemer("pinkFlower.JPG")
+    
+    #colorSchemer("pics/itWorked.gif")
     #colorSchemer("pics/rainbow.gif")
     #colorSchemer("pics/galaxy.gif")
-    #colorSchemer("pics/aaronJudge.gif")
     #colorSchemer("pics/pinkClouds.gif")
-    colorSchemer("pics/ocean.gif")
-    #colorSchemer("pics/stickFigures.gif")
+    #colorSchemer("pics/ocean.gif")
+    colorSchemer("pics/stickFigures.gif")
     
-    #c = [(1,2,3),(2,2,2),(66,77,88),(100,100,100),(1,1,1)]
-    #sortDL(c)
-    
-    #drawLogo(10,20)
-    
-    # load in the data
-    #data = open("colorNames.csv")
-    
-    
-    # reading the first row of headers
-    #print(data.readline())
-        
 
-    
-    #print(getColorName([(50,100,40),(2,36,200)]))
-    
-    #print(getHex([(2,30,40),(2,36,200)]))
-    
 
 main()
 
