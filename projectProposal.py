@@ -29,6 +29,8 @@ def pixDist(r1,g1,b1,r2,g2,b2):
 # function returns: None
 def clusterize(allPix,centroids,clusters):
     
+
+    
     # loop through all the pixels
     for p in allPix:
         # we will start with the max distance and max pix values
@@ -284,7 +286,7 @@ def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     
     # set values for our frame
     rectW = 664 # must be multiple of 8 since we have 8 centroids
-    rectH = 460 
+    rectH = 460  
     rectX = (canvasW - rectW)//2 # since we want equal margins we divide the difference by 2
     rectY = 80    
     
@@ -363,12 +365,14 @@ def colorSchemer(path):
 def main():
     
     
-    #colorSchemer("pics/itWorked.gif")
+    colorSchemer("pics/itWorked.gif")
     #colorSchemer("pics/rainbow.gif")
     #colorSchemer("pics/galaxy.gif")
     #colorSchemer("pics/pinkClouds.gif")
     #colorSchemer("pics/ocean.gif")
-    colorSchemer("pics/stickFigures.gif")
+    #colorSchemer("pics/flower.gif")
+    #colorSchemer("pics/aaronJudge.gif")
+    #colorSchemer("pics/stickFigures.gif")
     
 
 
