@@ -1,15 +1,10 @@
 #"I hereby certify that this program is solely the result of my own work and is in compliance with the Academic Integrity policy of the course syllabus and the academic integrity policy of the CS department.”
 
-
-
-
-from PIL import Image, ImageDraw
-import pandas as pd
 import random
 import Draw
 import math
 
-# global variable
+# global variables
 # the canvas width and height
 canvasW = 686
 canvasH = 600
@@ -29,10 +24,40 @@ def pixDist(r1,g1,b1,r2,g2,b2):
 # function returns: None
 def clusterize(allPix,centroids,clusters):
     
-
+    # weighting colors that make up over 10% of the image less
+    
+    # initializing vars
+    cutPix = []
+    dict = {}
+    
+    # loopinng through all the pixels
+    for p in allPix:
+        
+        # creating a dictionary with all the pixels and the number of times
+        # they appear in allPix
+        if p in dict:
+            dict[p]+=1
+        else:
+            dict[p] =1
+    
+    # the cutOff for a "large" amount of a color is if it makes up about over
+    # 20% of all the pixels
+    cutOff = int(len(allPix)*(20/100))
+    
+    for k in dict:
+        
+        # if the count of the pixel is greater than the cutoff
+        if(dict[k] > cutOff):
+            # add that pixel 2% less than it appears in allPix, or in other words
+            # only include 98% of the iterations of that pixel
+            for i in range(int(0.98*dict[k])): cutPix.append(k)
+        else:
+            # otherwise add it the original amount of times it appears in allPix
+            for i in range(dict[k]): cutPix.append(k)
+    
     
     # loop through all the pixels
-    for p in allPix:
+    for p in cutPix:
         # we will start with the max distance and max pix values
         minDist = pixDist(255,255,255,0,0,0)
             
@@ -90,7 +115,6 @@ def getColorName(centroids):
     # dictionary with centroid as key and a tuple of the closest color name as 
     # the data
     centroidNames = []
-    
     
     # creating an empty 2d list
     data = {}
@@ -224,7 +248,6 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
     wordsH = 45
     
     # drawing a white space for the text
-    
     Draw.setColor(Draw.WHITE)
     Draw.filledRect(rectX,colorsY-wordsH,rectW,wordsH)    
     
@@ -269,7 +292,6 @@ def drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY):
 # function purpose: Draws the color schemer logo
 # function returns: None
 def drawLogo(logoX,logoY):
-    #print(Draw.availableFonts())
     
     Draw.setFontFamily("Broadway")
     Draw.setFontSize(30)
@@ -303,13 +325,14 @@ def drawPalette(path, centroids, picW, picH, centroidNames, centroidHex):
     # to cover the side where the image goes over the frame on the right
     if(picW > rectW):
         
-        coverX = rectX + rectW
-        coverY = rectY
-        coverW = canvasW - rectX - rectW
+        coverX = rectX + rectW # x will be where the width of the rect ends on the right
+        coverY = rectY         # y is the same y as the rectangle
+        coverW = canvasW - rectX - rectW # the width is the canvas width, 
+                                         # minus the rectangle x minus its width
         coverH = canvasH
         
         Draw.setColor(Draw.WHITE)
-        Draw.filledRect(coverX,coverY, canvasW - rectX - rectW, canvasH)
+        Draw.filledRect(coverX,coverY,coverW,canvasH)
     
     # draw the colored boxes from the centroids
     drawColors(centroids,centroidNames,centroidHex, rectH, rectW, rectX, rectY)
@@ -365,19 +388,16 @@ def colorSchemer(path):
 def main():
     
     
-    colorSchemer("pics/itWorked.gif")
-    #colorSchemer("pics/rainbow.gif")
-    #colorSchemer("pics/galaxy.gif")
-    #colorSchemer("pics/pinkClouds.gif")
-    #colorSchemer("pics/ocean.gif")
-    #colorSchemer("pics/flower.gif")
-    #colorSchemer("pics/aaronJudge.gif")
-    #colorSchemer("pics/stickFigures.gif")
+    colorSchemer("pics/itWorked.gif")      # shows a human subject
+    #colorSchemer("pics/rainbow.gif")       # shows many colors
+    #colorSchemer("pics/galaxy.gif")        # shows similar colors
+    #colorSchemer("pics/pinkClouds.gif")    # shows similar colors
+    #colorSchemer("pics/ocean.gif")         # shows similar colors
+    #colorSchemer("pics/flower.gif")        # shows a colorful subject (flower)
+    #colorSchemer("pics/aaronJudge.gif")    # shows a human subject
+    #colorSchemer("pics/stickFigures.gif")  # shows many colors on a plain background
     
 
 
 main()
 
-# Qs
-
-# 1) global variables ok?
