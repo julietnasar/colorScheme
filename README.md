@@ -5,12 +5,6 @@ Takes an image and outputs a "color scheme" of the most prominent colors in an i
 ## Motivation
 I have often looked at images and wished I could get a color palette of the most prominent colors so I could channel that color scheme in a painting or other design project so I set out to create a program that does just that
 
-## Concepts Used
-- Clustering: used to group together RGB values to find the most prominent colors, developed algorithm from scratch
-- File Reading: a dataset of color names was read through Python and used to find the closest color names to the RGB values
-- RGB to Hex conversions: used to get the Hex names from the RGB values
-- Dictionary: Used to store the number of times a pixel appeared in the image
-
 ## Code Example (Clustering Algorithm)
 
 
