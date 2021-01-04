@@ -1,4 +1,3 @@
-# In progress: semester project for Introduction to Computer Science at Yeshiva University Spring 2020
 
 ## Project Summary
 outputs a "color scheme" of the most prominent colors in an image
@@ -9,8 +8,9 @@ outputs a "color scheme" of the most prominent colors in an image
 - RGB to Hex conversions: used to get the Hex names from the RGB values
 
 ## Output Example
-![Ocean Palette](oceanPalette.png)
-
+![palette1](spockPalette.png)
+![palette2](oceanPalette.png)
+![palette3](pinkFlowerPalette.png)
 
 ## Credits
 colors dataset used for color names is a subset of a dataset taken from https://data.world/dilumr/color-names
